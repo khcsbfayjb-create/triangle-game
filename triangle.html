@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triangle to Square - Expanding Shape</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #f46b45, #eea849);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            min-width: 500px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(244, 107, 69, 0.3);
+            position: relative;
+        }
+        
+        #gameCanvas {
+            display: block;
+            background: #0a1128;
+            border-radius: 15px;
+            width: 100%;
+            height: 500px;
+        }
+        
+        .speed-board {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 2px solid #f46b45;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .speed-label {
+            font-size: 0.9rem;
+            color: #b8c1ec;
+            margin-bottom: 5px;
+        }
+        
+        .speed-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #eea849;
+            text-shadow: 0 0 10px rgba(238, 168, 73, 0.5);
+        }
+        
+        .speed-unit {
+            font-size: 0.8rem;
+            color: #f46b45;
+            margin-left: 3px;
+        }
+        
+        .controls-panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(244, 107, 69, 0.3);
+        }
+        
+        .panel-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #f46b45;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #f46b45;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #b8c1ec;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #eea849;
+        }
+        
+        .sound-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .sound-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .sound-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sound-btn.active {
+            background: rgba(244, 107, 69, 0.3);
+            border-color: #f46b45;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #f46b45, #eea849);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(244, 107, 69, 0.4);
+        }
+        
+        button.reset {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        }
+        
+        .speed-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .speed-indicator {
+            font-size: 1.2rem;
+            color: #eea849;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .canvas-container, .controls-panel {
+                min-width: 100%;
+            }
+            
+            .speed-board {
+                top: 20px;
+                right: 20px;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Triangle to Square Transformation</h1>
+            <p class="subtitle">Speed board added! See the current ball speed in real-time!</p>
+        </header>
+        
+        <div class="game-area">
+            <div class="canvas-container">
+                <canvas id="gameCanvas"></canvas>
+                <!-- SPEED BOARD - NEW! -->
+                <div class="speed-board">
+                    <div class="speed-label">BALL SPEED</div>
+                    <div class="speed-value">3.0<span class="speed-unit">units</span></div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <div class="panel-section">
+                    <h2>Game Stats</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">CURRENT SHAPE</div>
+                            <div class="stat-value" id="currentShape">Triangle</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">NUMBER OF SIDES</div>
+                            <div class="stat-value" id="sideCount">3</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">TOTAL COLLISIONS</div>
+                            <div class="stat-value" id="collisionCount">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">NEXT SIDE IN</div>
+                            <div class="stat-value" id="nextSideIn">3</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Speed Controls -->
+                    <div class="speed-controls">
+                        <button id="slowDownBtn">⬇ Slow Down</button>
+                        <div class="speed-indicator" id="speedIndicator">Speed: 3.0</div>
+                        <button id="speedUpBtn">⬆ Speed Up</button>
+                    </div>
+                    
+                    <div class="sound-controls">
+                        <div class="sound-btn active" id="soundOnBtn">
+                            🔊 Sound On
+                        </div>
+                        <div class="sound-btn" id="soundOffBtn">
+                            🔇 Sound Off
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h2>Controls</h2>
+                    <div class="controls-grid">
+                        <button id="startBtn">Start/Pause</button>
+                        <button id="resetBtn" class="reset">Reset Game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        // Game variables
+        let gameRunning = true;
+        let totalCollisions = 0;
+        let sides = 3;
+        let nextSideAt = 3;
+        let soundEnabled = true;
+        let shapeVertices = [];
+        let shapeSides = [];
+        
+        // Ball properties - with speed tracking
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 12,
+            speed: 3.0,  // Start speed
+            dx: 3,
+            dy: 2,
+            color: '#FFD700'
+        };
+        
+        // Shape names
+        const shapeNames = {
+            3: 'Triangle',
+            4: 'Square',
+            5: 'Pentagon',
+            6: 'Hexagon',
+            7: 'Heptagon',
+            8: 'Octagon',
+            9: 'Nonagon',
+            10: 'Decagon'
+        };
+        
+        // Audio context for sound effects
+        let audioContext;
+        let lastCollisionTime = 0;
+        const collisionCooldown = 100;
+        
+        // Function to update speed display everywhere
+        function updateSpeedDisplay() {
+            const speedBoard = document.querySelector('.speed-value');
+            const speedIndicator = document.getElementById('speedIndicator');
+            
+            // Update speed board on canvas
+            speedBoard.textContent = ball.speed.toFixed(1);
+            
+            // Update speed indicator in controls panel
+            speedIndicator.textContent = `Speed: ${ball.speed.toFixed(1)}`;
+            
+            // Add visual effect when speed changes
+            speedBoard.style.transform = 'scale(1.1)';
+            speedBoard.style.color = '#FFD700';
+            
+            setTimeout(() => {
+                speedBoard.style.transform = 'scale(1)';
+                speedBoard.style.color = '#eea849';
+            }, 200);
+        }
+        
+        // Initialize audio context
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        // Play collision sound
+        function playCollisionSound(sideIndex) {
+            if (!soundEnabled || !audioContext) return;
+            
+            const now = Date.now();
+            if (now - lastCollisionTime < collisionCooldown) return;
+            lastCollisionTime = now;
+            
+            // Different pitch for different sides
+            const baseFreq = 300 + (sideIndex * 50);
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(baseFreq, audioContext.currentTime);
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.15);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
+        
+        // Play transformation sound
+        function playTransformSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Play a rising scale
+            oscillator.frequency.setValueAtTime(261.63, audioContext.currentTime); // C4
+            oscillator.frequency.setValueAtTime(329.63, audioContext.currentTime + 0.1); // E4
+            oscillator.frequency.setValueAtTime(392.00, audioContext.currentTime + 0.2); // G4
+            oscillator.type = 'triangle';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+        
+        // Create shape with specified number of sides
+        function createShape(numSides) {
+            shapeVertices = [];
+            shapeSides = [];
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(canvas.width, canvas.height) * 0.3;
+            
+            // Create regular polygon vertices
+            for (let i = 0; i < numSides; i++) {
+                const angle = (i * 2 * Math.PI / numSides) - Math.PI / 2;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                shapeVertices.push({ x, y });
+            }
+            
+            // Create sides between vertices
+            for (let i = 0; i < numSides; i++) {
+                const start = shapeVertices[i];
+                const end = shapeVertices[(i + 1) % numSides];
+                
+                shapeSides.push({
+                    start: start,
+                    end: end,
+                    length: Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)),
+                    collisions: 0
+                });
+            }
+            
+            // Update UI
+            document.getElementById('currentShape').textContent = shapeNames[numSides] || `${numSides}-gon`;
+            document.getElementById('sideCount').textContent = numSides;
+        }
+        
+        // Place ball in center of shape
+        function placeBallInShape() {
+            let sumX = 0, sumY = 0;
+            for (const vertex of shapeVertices) {
+                sumX += vertex.x;
+                sumY += vertex.y;
+            }
+            ball.x = sumX / shapeVertices.length;
+            ball.y = sumY / shapeVertices.length;
+        }
+        
+        // Check collision with sides
+        function checkCollision() {
+            for (let i = 0; i < shapeSides.length; i++) {
+                const side = shapeSides[i];
+                
+                // Calculate closest point on line segment to ball
+                const A = ball.x - side.start.x;
+                const B = ball.y - side.start.y;
+                const C = side.end.x - side.start.x;
+                const D = side.end.y - side.start.y;
+                
+                const dot = A * C + B * D;
+                const lenSq = C * C + D * D;
+                let param = -1;
+                
+                if (lenSq !== 0) {
+                    param = dot / lenSq;
+                }
+                
+                let xx, yy;
+                
+                if (param < 0) {
+                    xx = side.start.x;
+                    yy = side.start.y;
+                } else if (param > 1) {
+                    xx = side.end.x;
+                    yy = side.end.y;
+                } else {
+                    xx = side.start.x + param * C;
+                    yy = side.start.y + param * D;
+                }
+                
+                const dx = ball.x - xx;
+                const dy = ball.y - yy;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance <= ball.radius) {
+                    handleCollision(i, xx, yy);
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Handle collision
+        function handleCollision(sideIndex, collisionX, collisionY) {
+            const side = shapeSides[sideIndex];
+            
+            // PLAY SOUND FOR EVERY COLLISION
+            playCollisionSound(sideIndex);
+            
+            // Increase side length
+            const dx = side.end.x - side.start.x;
+            const dy = side.end.y - side.start.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const newLength = length + 10;
+            
+            // Extend side proportionally from collision point
+            const ratio = 0.5;
+            const extendX = (dx / length) * 5;
+            const extendY = (dy / length) * 5;
+            
+            side.start.x -= extendX * ratio;
+            side.start.y -= extendY * ratio;
+            side.end.x += extendX * (1 - ratio);
+            side.end.y += extendY * (1 - ratio);
+            side.length = newLength;
+            
+            // Update collisions
+            totalCollisions++;
+            side.collisions++;
+            
+            document.getElementById('collisionCount').textContent = totalCollisions;
+            
+            // Check if we need to add a new side
+            if (totalCollisions >= nextSideAt) {
+                playTransformSound();
+                addNewSide();
+                nextSideAt += 3;
+                document.getElementById('nextSideIn').textContent = nextSideAt - totalCollisions;
+            } else {
+                document.getElementById('nextSideIn').textContent = nextSideAt - totalCollisions;
+            }
+            
+            // Bounce the ball
+            const normalX = -(side.end.y - side.start.y);
+            const normalY = side.end.x - side.start.x;
+            const normalLength = Math.sqrt(normalX * normalX + normalY * normalY);
+            const unitNormalX = normalX / normalLength;
+            const unitNormalY = normalY / normalLength;
+            
+            const dot = ball.dx * unitNormalX + ball.dy * unitNormalY;
+            ball.dx = ball.dx - 2 * dot * unitNormalX;
+            ball.dy = ball.dy - 2 * dot * unitNormalY;
+            
+            // Normalize to current speed
+            const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+            ball.dx = (ball.dx / currentSpeed) * ball.speed;
+            ball.dy = (ball.dy / currentSpeed) * ball.speed;
+            
+            // Move ball outside the side
+            ball.x = collisionX + unitNormalX * (ball.radius + 1);
+            ball.y = collisionY + unitNormalY * (ball.radius + 1);
+        }
+        
+        // Add new side to shape
+        function addNewSide() {
+            sides++;
+            createShape(sides);
+        }
+        
+        // Update ball position
+        function updateBall() {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+            
+            // Check collision with shape sides
+            checkCollision();
+            
+            // Keep ball roughly in bounds
+            if (ball.x < ball.radius) {
+                ball.dx = Math.abs(ball.dx);
+                playCollisionSound(0);
+            }
+            if (ball.x > canvas.width - ball.radius) {
+                ball.dx = -Math.abs(ball.dx);
+                playCollisionSound(0);
+            }
+            if (ball.y < ball.radius) {
+                ball.dy = Math.abs(ball.dy);
+                playCollisionSound(0);
+            }
+            if (ball.y > canvas.height - ball.radius) {
+                ball.dy = -Math.abs(ball.dy);
+                playCollisionSound(0);
+            }
+        }
+        
+        // Draw everything
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw shape
+            ctx.beginPath();
+            ctx.moveTo(shapeVertices[0].x, shapeVertices[0].y);
+            for (let i = 1; i < shapeVertices.length; i++) {
+                ctx.lineTo(shapeVertices[i].x, shapeVertices[i].y);
+            }
+            ctx.closePath();
+            
+            // Fill shape
+            ctx.fillStyle = 'rgba(30, 30, 60, 0.3)';
+            ctx.fill();
+            
+            // Draw sides with different colors
+            ctx.lineWidth = 3;
+            const colors = ['#FF5555', '#55FF55', '#5555FF', '#FFFF55', '#FF55FF', '#55FFFF'];
+            
+            for (let i = 0; i < shapeSides.length; i++) {
+                const side = shapeSides[i];
+                ctx.beginPath();
+                ctx.moveTo(side.start.x, side.start.y);
+                ctx.lineTo(side.end.x, side.end.y);
+                ctx.strokeStyle = colors[i % colors.length];
+                ctx.stroke();
+                
+                // Show side length
+                const midX = (side.start.x + side.end.x) / 2;
+                const midY = (side.start.y + side.end.y) / 2;
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(Math.round(side.length), midX, midY - 10);
+            }
+            
+            // Draw vertices
+            for (let i = 0; i < shapeVertices.length; i++) {
+                ctx.beginPath();
+                ctx.arc(shapeVertices[i].x, shapeVertices[i].y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fill();
+            }
+            
+            // Draw ball
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = ball.color;
+            ctx.fill();
+            
+            // Draw ball highlight
+            ctx.beginPath();
+            ctx.arc(ball.x - 3, ball.y - 3, ball.radius / 3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fill();
+        }
+        
+        // Game loop
+        function gameLoop() {
+            if (gameRunning) {
+                updateBall();
+                draw();
+            }
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Initialize game
+        function init() {
+            initAudio();
+            createShape(3);
+            placeBallInShape();
+            document.getElementById('nextSideIn').textContent = nextSideAt;
+            updateSpeedDisplay(); // Initialize speed display
+            gameLoop();
+        }
+        
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', function() {
+            gameRunning = !gameRunning;
+            this.textContent = gameRunning ? 'Pause' : 'Start';
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            totalCollisions = 0;
+            sides = 3;
+            nextSideAt = 3;
+            ball.speed = 3.0;
+            ball.dx = 3;
+            ball.dy = 2;
+            
+            createShape(3);
+            placeBallInShape();
+            
+            document.getElementById('collisionCount').textContent = '0';
+            document.getElementById('nextSideIn').textContent = '3';
+            updateSpeedDisplay(); // Update speed display on reset
+        });
+        
+        // Speed control buttons with visual feedback
+        document.getElementById('speedUpBtn').addEventListener('click', function() {
+            if (ball.speed < 10) { // Maximum speed limit
+                ball.speed += 0.5;
+                const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+                ball.dx = (ball.dx / currentSpeed) * ball.speed;
+                ball.dy = (ball.dy / currentSpeed) * ball.speed;
+                updateSpeedDisplay();
+                
+                // Visual feedback
+                this.style.backgroundColor = '#4CAF50';
+                setTimeout(() => {
+                    this.style.backgroundColor = '';
+                }, 200);
+            }
+        });
+        
+        document.getElementById('slowDownBtn').addEventListener('click', function() {
+            if (ball.speed > 0.5) { // Minimum speed limit
+                ball.speed -= 0.5;
+                const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+                ball.dx = (ball.dx / currentSpeed) * ball.speed;
+                ball.dy = (ball.dy / currentSpeed) * ball.speed;
+                updateSpeedDisplay();
+                
+                // Visual feedback
+                this.style.backgroundColor = '#FF5722';
+                setTimeout(() => {
+                    this.style.backgroundColor = '';
+                }, 200);
+            }
+        });
+        
+        // Sound control buttons
+        document.getElementById('soundOnBtn').addEventListener('click', function() {
+            soundEnabled = true;
+            this.classList.add('active');
+            document.getElementById('soundOffBtn').classList.remove('active');
+            if (!audioContext) {
+                initAudio();
+            }
+        });
+        
+        document.getElementById('soundOffBtn').addEventListener('click', function() {
+            soundEnabled = false;
+            this.classList.add('active');
+            document.getElementById('soundOnBtn').classList.remove('active');
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            createShape(sides);
+            placeBallInShape();
+        });
+        
+        // Start the game
+        init();
+    </script>
+</body>
+</html>
